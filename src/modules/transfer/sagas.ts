@@ -2,7 +2,6 @@ import { TransactionResponse, ethers } from 'ethers'
 import { call, put, takeEvery } from 'redux-saga/effects'
 import { balanceRequest } from '../balance/actions'
 import { isErrorWithMessage } from '../utils'
-import { transferModalClose } from '../wallet/actions'
 import { TOKEN_ABI, TOKEN_ADDRESS } from '../wallet/sagas'
 import { TRANSFER_TOKEN_REQUEST, TransferTokenRequestAction, transferTokenFailure } from './actions'
 import { WindowWithEthereum } from './types'
@@ -24,9 +23,10 @@ function* handleTransferTokenRequest(action: TransferTokenRequestAction): Genera
     // Getting contract with signer instead of provider to allow changing its state
     const contract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, signer)
 
-    const { address, to, amount } = action.payload
+    const { addressFrom, address, amount } = action.payload
 
-    const formattedAddressTo = ethers.getAddress(to)
+    const formattedAddressTo = ethers.getAddress(address)
+
     const tx: TransactionResponse = yield call([contract, contract.transfer], formattedAddressTo, amount) as Awaited<
       ReturnType<typeof contract.transfer>
     >
@@ -39,9 +39,7 @@ function* handleTransferTokenRequest(action: TransferTokenRequestAction): Genera
     // Dispatch success action
     //yield put(transferSuccess(tx.hash))
 
-    yield put(balanceRequest(address))
-
-    yield put(transferModalClose())
+    yield put(balanceRequest(addressFrom))
   } catch (error) {
     yield put(transferTokenFailure(isErrorWithMessage(error) ? error.message : 'Unknown error'))
   }

@@ -2,6 +2,7 @@ import { ethers } from 'ethers'
 
 export type BalanceState = {
   isUpdating: boolean
+  balance: string | null
   address: string | null
   error: string | null
 }

@@ -1,11 +1,11 @@
 import { connect } from 'react-redux'
 import Balance from './Balance'
 
-import { getError, isUpdating } from '../../modules/balance/selectors'
+import { getBalance, getError, isUpdating } from '../../modules/balance/selectors'
 import { RootState } from '../../modules/types'
 
-import { getBalance } from '../../modules/wallet/selectors'
-import { MapStateProps } from './Balance.types'
+import { balanceUpdate } from '../../modules/balance/actions'
+import { MapDispatch, MapDispatchProps, MapStateProps } from './Balance.types'
 
 const mapState = (state: RootState): MapStateProps => ({
   balance: getBalance(state),
@@ -13,4 +13,8 @@ const mapState = (state: RootState): MapStateProps => ({
   error: getError(state)
 })
 
-export default connect(mapState, null)(Balance)
+const mapDispatch = (dispatch: MapDispatch): MapDispatchProps => ({
+  onBalanceUpdate: (balance: string) => dispatch(balanceUpdate(balance))
+})
+
+export default connect(mapState, mapDispatch)(Balance)

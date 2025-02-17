@@ -2,12 +2,12 @@
 export const TRANSFER_TOKEN_REQUEST = '[Request] Transfer Token'
 export const TRANSFER_TOKEN_FAILURE = '[Failure] Transfer Token'
 
-export function transferTokenRequest(address: string, to: string, amount: string) {
+export function transferTokenRequest(addressFrom: string, address: string, amount: string) {
   return {
     type: TRANSFER_TOKEN_REQUEST,
     payload: {
+      addressFrom,
       address,
-      to,
       amount
     }
   }

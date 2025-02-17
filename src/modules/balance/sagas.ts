@@ -1,9 +1,9 @@
 import { TransactionResponse, ethers } from 'ethers'
 import { call, put, takeEvery } from 'redux-saga/effects'
 import { isErrorWithMessage } from '../utils'
-import { balanceUpdate, connectWalletFailure } from '../wallet/actions'
+import { connectWalletFailure } from '../wallet/actions'
 import { TOKEN_ABI, TOKEN_ADDRESS } from '../wallet/sagas'
-import { BALANCE_REQUEST, BalanceRequestAction, balanceRequestSuccess } from './actions'
+import { BALANCE_REQUEST, BalanceRequestAction, balanceRequestSuccess, balanceUpdate } from './actions'
 import { WindowWithEthereum } from './types'
 
 // The regular `window` object with `ethereum` injected by MetaMask
@@ -21,7 +21,6 @@ function* handleBalanceRequest(action: BalanceRequestAction): Generator<any, voi
     // Getting DUMMY balance from connected account
     const contract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, provider)
     const balance: TransactionResponse = yield call([contract, contract.balanceOf], address)
-    console.log('[Balance] Wallet Sagas', address, String(balance))
 
     yield put(balanceUpdate(String(balance)))
     yield put(balanceRequestSuccess())
