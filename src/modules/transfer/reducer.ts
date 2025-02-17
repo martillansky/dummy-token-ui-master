@@ -3,6 +3,7 @@ import { TRANSFER_TOKEN_FAILURE, TRANSFER_TOKEN_REQUEST, TransferTokenFailureAct
 import { TransferState } from './types'
 
 const INITIAL_STATE: TransferState = {
+  addressFrom: '',
   address: '',
   amount: '',
   error: null
@@ -11,9 +12,10 @@ const INITIAL_STATE: TransferState = {
 export function transferReducer(state: TransferState = INITIAL_STATE, action: AnyAction): TransferState {
   switch (action.type) {
     case TRANSFER_TOKEN_REQUEST: {
-      const { address, amount } = action.payload as TransferTokenRequestAction['payload']
+      const { addressFrom, address, amount } = action.payload as TransferTokenRequestAction['payload']
       return {
         ...state,
+        addressFrom,
         address,
         amount,
         error: null

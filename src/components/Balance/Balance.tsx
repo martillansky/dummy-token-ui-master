@@ -3,7 +3,6 @@ import React from 'react'
 import { Props } from './Balance.types'
 
 const Balance: React.FC<Props> = ({ balance, isUpdating, error }) => {
-  console.log('UPDATING: ', isUpdating)
   return (
     <>
       {isUpdating ? <Loader active size="mini" /> : balance + ' DUMMY'}

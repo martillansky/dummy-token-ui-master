@@ -5,11 +5,13 @@ export type Props = {
   address: string | null
   amount: string | null
   balance: string | null
-  onClose: () => void
-  onTransferModal: (address: string, amount: string) => void
+  isConnected: boolean
+  isUpdating: boolean
   error: string | null
+  onTransferConfirmed: (addressFrom: string, address: string, amount: string) => void
+  onConnect: () => void
 }
 
-export type MapStateProps = Pick<Props, 'address' | 'amount' | 'error'>
-//export type MapDispatchProps = Pick<Props, 'onTransferConfirmed'>
-//export type MapDispatch = Dispatch<TransferTokenRequestAction | AnyAction>
+export type MapStateProps = Pick<Props, 'address' | 'amount' | 'balance' | 'isConnected' | 'isUpdating' | 'error'>
+export type MapDispatchProps = Pick<Props, 'onTransferConfirmed' | 'onConnect'>
+export type MapDispatch = Dispatch<TransferTokenRequestAction | AnyAction>
