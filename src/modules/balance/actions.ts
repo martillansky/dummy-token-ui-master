@@ -1,4 +1,3 @@
-// Update Balance Request
 export const BALANCE_REQUEST = '[Request] Balance'
 export const BALANCE_REQUEST_SUCCESS = '[Success] Balance'
 export const BALANCE_UPDATE = '[Update] Balance'

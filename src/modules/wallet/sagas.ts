@@ -62,7 +62,8 @@ function* watchWalletChanges(): Generator<any, void, any> {
   }
 }
 
-function* handleConnectWalletRequest() {
+export function* handleConnectWalletRequest() {
+  // For testing purposes
   try {
     const provider = new ethers.BrowserProvider(windowWithEthereum.ethereum)
     yield call([provider, 'send'], 'eth_requestAccounts', []) as Awaited<ReturnType<typeof provider.send>>
