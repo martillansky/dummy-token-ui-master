@@ -13,7 +13,6 @@
   color: var(--secondary-text);
 }
 
-/* Error styling - using consistent error color variable */
 .Balance .error {
   margin-top: 20px;
   color: var(--error-color, #ff0000); 
