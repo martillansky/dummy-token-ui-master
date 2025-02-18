@@ -1,5 +1,12 @@
 import { AnyAction } from 'redux'
-import { BALANCE_REQUEST, BALANCE_REQUEST_SUCCESS, BALANCE_UPDATE, BalanceRequestAction, BalanceUpdateAction } from './actions'
+import {
+  BALANCE_REQUEST,
+  BALANCE_REQUEST_FAILURE,
+  BALANCE_REQUEST_SUCCESS,
+  BALANCE_UPDATE as BALANCE_REQUEST_UPDATE,
+  BalanceRequestAction,
+  BalanceRequestUpdateAction
+} from './actions'
 import { BalanceState } from './types'
 
 const INITIAL_STATE: BalanceState = {
@@ -29,8 +36,17 @@ export function balanceReducer(state: BalanceState = INITIAL_STATE, action: AnyA
       }
     }
 
-    case BALANCE_UPDATE: {
-      const { balance } = action.payload as BalanceUpdateAction['payload']
+    case BALANCE_REQUEST_FAILURE: {
+      const { error } = action.payload
+      return {
+        ...state,
+        isUpdating: false,
+        error
+      }
+    }
+
+    case BALANCE_REQUEST_UPDATE: {
+      const { balance } = action.payload as BalanceRequestUpdateAction['payload']
       return {
         ...state,
         balance,

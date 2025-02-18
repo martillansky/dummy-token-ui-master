@@ -1,4 +1,33 @@
+.Transfer {
+  /* General layout */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Modal content spacing */
+.Transfer .ui.modal .content {
+  margin: 16px 0;
+}
+
+/* Field spacing */
+.Transfer .ui.field {
+  margin-bottom: 16px;
+}
+
+/* Error styling - using consistent error color variable */
 .Transfer .error {
   margin-top: 20px;
-  color: var(--primary);
+  color: var(--error-color, #ff0000);
+}
+
+/* Button alignment in modal actions */
+.Transfer .ui.modal .actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Loading state */
+.Transfer .ui.loading.button {
+  position: relative;
 }

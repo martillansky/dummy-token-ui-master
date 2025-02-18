@@ -1,12 +1,21 @@
 import { AnyAction } from 'redux'
-import { TRANSFER_TOKEN_FAILURE, TRANSFER_TOKEN_REQUEST, TransferTokenFailureAction, TransferTokenRequestAction } from './actions'
+import {
+  TRANSFER_TOKEN_FAILURE,
+  TRANSFER_TOKEN_REQUEST,
+  TRANSFER_TOKEN_SUCCESS,
+  TransferTokenFailureAction,
+  TransferTokenRequestAction,
+  TransferTokenSuccessAction
+} from './actions'
 import { TransferState } from './types'
 
 const INITIAL_STATE: TransferState = {
   addressFrom: '',
   address: '',
   amount: '',
-  error: null
+  error: null,
+  txHash: null,
+  status: 'idle'
 }
 
 export function transferReducer(state: TransferState = INITIAL_STATE, action: AnyAction): TransferState {
@@ -18,6 +27,19 @@ export function transferReducer(state: TransferState = INITIAL_STATE, action: An
         addressFrom,
         address,
         amount,
+        error: null,
+        status: 'pending'
+      }
+    }
+
+    case TRANSFER_TOKEN_SUCCESS: {
+      const { txHash } = action.payload as TransferTokenSuccessAction['payload']
+      return {
+        ...state,
+        txHash,
+        status: 'success',
+        address: '',
+        amount: '',
         error: null
       }
     }
@@ -26,7 +48,8 @@ export function transferReducer(state: TransferState = INITIAL_STATE, action: An
       const { error } = action.payload as TransferTokenFailureAction['payload']
       return {
         ...state,
-        error
+        error,
+        status: 'error'
       }
     }
 

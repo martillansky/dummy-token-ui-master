@@ -5,6 +5,8 @@ export type TransferState = {
   address: string | null
   amount: string | null
   error: string | null
+  txHash: string | null
+  status: 'idle' | 'pending' | 'success' | 'error'
 }
 
 export type WindowWithEthereum = Window & {

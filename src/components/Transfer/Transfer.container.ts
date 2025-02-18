@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import { getBalance, isUpdating } from '../../modules/balance/selectors'
 import { transferTokenRequest } from '../../modules/transfer/actions'
-import { getAmount, getError } from '../../modules/transfer/selectors'
+import { getAddressFrom, getAmount, getError } from '../../modules/transfer/selectors'
 import { RootState } from '../../modules/types'
 import { connectWalletRequest } from '../../modules/wallet/actions'
 import { getAddress, isConnected } from '../../modules/wallet/selectors'
@@ -11,6 +11,7 @@ import { MapDispatch, MapDispatchProps, MapStateProps } from './Transfer.types'
 const mapState = (state: RootState): MapStateProps => ({
   address: getAddress(state),
   amount: getAmount(state),
+  addressFrom: getAddressFrom(state),
   balance: getBalance(state),
   isConnected: isConnected(state),
   isUpdating: isUpdating(state),

@@ -1,8 +1,39 @@
 .App .ui.card {
   padding: 16px;
+  width: auto;
+  min-width: 300px;
+  max-width: 600px;
 }
 
+/* Card sections */
+.App .ui.card section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* Error styling - using consistent error color variable */
 .App .error {
   margin-top: 20px;
-  color: var(--primary);
+  color: var(--error-color, #ff0000); 
+}
+
+/* Button spacing in card */
+.App .ui.card .ui.button {
+  margin-left: auto;
+}
+
+/* Address display */
+.App .ui.card p {
+  margin: 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Strong text styling */
+.App .ui.card strong {
+  color: var(--secondary-text);
+  min-width: 80px;
 }
