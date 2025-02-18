@@ -26,14 +26,13 @@ const App: React.FC<Props> = ({ address, isConnected, onConnect, isConnecting, e
                 <strong>Address:</strong>&nbsp;
                 {address!.slice(0, 6) + '...' + address!.slice(-4)}
               </p>
-              <p>
+              <section>
                 <strong>Balance:</strong>&nbsp;
-                {/* {balance + ' DUMMY'} */}
                 <Balance />
                 <Button basic onClick={() => navigate('/transfer')}>
                   TRANSFER
                 </Button>
-              </p>
+              </section>
             </Card>
           )}
         </Center>

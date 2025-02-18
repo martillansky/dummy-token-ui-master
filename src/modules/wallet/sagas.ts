@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
-import { call, put, takeEvery } from 'redux-saga/effects'
+import { eventChannel, EventChannel } from 'redux-saga'
+import { call, fork, put, take, takeEvery } from 'redux-saga/effects'
 import { balanceRequest } from '../balance/actions'
 import { isErrorWithMessage } from '../utils'
 import { CONNECT_WALLET_REQUEST, connectWalletFailure, connectWalletSuccess } from './actions'
@@ -26,9 +27,39 @@ export const TOKEN_ABI = [
   'function balanceOf(address) view returns (uint)',
   'function transfer(address to, uint amount)'
 ]
+//'function transfer(address to, uint amount) public returns (bool)'
 
-export function* walletSaga() {
-  yield takeEvery(CONNECT_WALLET_REQUEST, handleConnectWalletRequest)
+function createWalletChannel(): EventChannel<{ address: string | null }> {
+  return eventChannel(emit => {
+    const handleAccountsChanged = (accounts: string[]) => {
+      const address = accounts[0] || null
+      emit({ address })
+    }
+
+    windowWithEthereum.ethereum.on('accountsChanged', handleAccountsChanged)
+
+    return () => {
+      windowWithEthereum.ethereum.removeListener('accountsChanged', handleAccountsChanged)
+    }
+  })
+}
+
+function* watchWalletChanges(): Generator<any, void, any> {
+  const channel = yield call(createWalletChannel)
+
+  try {
+    while (true) {
+      const { address } = yield take(channel)
+      if (address) {
+        yield put(connectWalletSuccess(address))
+        yield put(balanceRequest(address))
+      } else {
+        yield put(connectWalletFailure('Wallet disconnected'))
+      }
+    }
+  } catch (error) {
+    yield put(connectWalletFailure(isErrorWithMessage(error) ? error.message : 'Unknown error'))
+  }
 }
 
 function* handleConnectWalletRequest() {
@@ -36,7 +67,6 @@ function* handleConnectWalletRequest() {
     const provider = new ethers.BrowserProvider(windowWithEthereum.ethereum)
     yield call([provider, 'send'], 'eth_requestAccounts', []) as Awaited<ReturnType<typeof provider.send>>
     const signer = (yield call([provider, 'getSigner'])) as Awaited<ReturnType<typeof provider.getSigner>>
-
     const address = (yield call([signer, 'getAddress'])) as Awaited<ReturnType<typeof signer.getAddress>>
 
     yield put(balanceRequest(address))
@@ -44,4 +74,9 @@ function* handleConnectWalletRequest() {
   } catch (error) {
     yield put(connectWalletFailure(isErrorWithMessage(error) ? error.message : 'Unknown error'))
   }
+}
+
+export function* walletSaga() {
+  yield fork(watchWalletChanges)
+  yield takeEvery(CONNECT_WALLET_REQUEST, handleConnectWalletRequest)
 }

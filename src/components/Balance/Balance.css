@@ -1,0 +1,24 @@
+.Balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.Balance .amount {
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.Balance .symbol {
+  color: var(--secondary-text);
+}
+
+/* Error styling - using consistent error color variable */
+.Balance .error {
+  margin-top: 20px;
+  color: var(--error-color, #ff0000); 
+}
+
+.Balance .ui.loader {
+  margin-right: 8px;
+}

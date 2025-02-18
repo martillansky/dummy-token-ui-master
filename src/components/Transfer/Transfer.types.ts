@@ -4,6 +4,7 @@ import { TransferTokenRequestAction } from '../../modules/transfer/actions'
 export type Props = {
   address: string | null
   amount: string | null
+  addressFrom: string | null
   balance: string | null
   isConnected: boolean
   isUpdating: boolean
@@ -12,6 +13,6 @@ export type Props = {
   onConnect: () => void
 }
 
-export type MapStateProps = Pick<Props, 'address' | 'amount' | 'balance' | 'isConnected' | 'isUpdating' | 'error'>
+export type MapStateProps = Pick<Props, 'address' | 'amount' | 'addressFrom' | 'balance' | 'isConnected' | 'isUpdating' | 'error'>
 export type MapDispatchProps = Pick<Props, 'onTransferConfirmed' | 'onConnect'>
 export type MapDispatch = Dispatch<TransferTokenRequestAction | AnyAction>
