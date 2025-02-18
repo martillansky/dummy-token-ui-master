@@ -1,13 +1,11 @@
 // Mock Vite's import.meta.env
-const mockEnv = {
-  VITE_TOKEN_ADDRESS: '0x123',
-  VITE_TOKEN_DECIMALS: '18'
-}
-
 Object.defineProperty(global, 'import', {
   value: {
     meta: {
-      env: mockEnv
+      env: {
+        VITE_TOKEN_ADDRESS: '0x1234567890123456789012345678901234567890',
+        VITE_TOKEN_DECIMALS: '4'
+      }
     }
   }
 })
@@ -20,5 +18,11 @@ Object.defineProperty(window, 'ethereum', {
     removeListener: jest.fn()
   }
 })
+
+// Mock ethers
+jest.mock('ethers', () => ({
+  BrowserProvider: jest.fn(),
+  Contract: jest.fn()
+}))
 
 export {}

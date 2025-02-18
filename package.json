@@ -14,25 +14,24 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.ts"
+    ],
     "moduleNameMapper": {
       "\\.(css|less|scss|sass)$": "identity-obj-proxy"
     },
-    "setupFiles": [
-      "<rootDir>/src/setupTests.ts"
-    ],
     "transform": {
-      "^.+\\.tsx?$": [
+      "^.+\\.(ts|tsx)$": [
         "ts-jest",
         {
+          "useESM": true,
           "tsconfig": {
+            "target": "es2020",
             "module": "es2020"
           }
         }
       ]
-    },
-    "modulePathIgnorePatterns": [
-      "node_modules/punycode"
-    ]
+    }
   },
   "dependencies": {
     "decentraland-ui": "^6.12.1",
