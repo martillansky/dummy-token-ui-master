@@ -25,7 +25,6 @@ function* handleBalanceRequest(action: BalanceRequestAction): Generator<any, voi
     yield put(balanceRequestUpdate(balanceString))
     yield put(balanceRequestSuccess())
   } catch (error) {
-    // I need to consider adding BALANCE_REQUEST_FAILURE action instead of using wallet failure
     yield put(balanceRequestFailure(isErrorWithMessage(error) ? error.message : 'Unknown error'))
   }
 }
