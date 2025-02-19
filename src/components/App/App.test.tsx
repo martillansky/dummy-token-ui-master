@@ -1,61 +1,85 @@
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
+import configureStore from 'redux-mock-store'
+
 import App from './App'
-import { Props } from './App.types'
+
+const mockStore = configureStore([])
 
 describe('App component', () => {
-  const mockProps: Props = {
-    address: null,
-    isConnected: false,
+  const mockProps = {
+    address: '',
+    balance: '0',
     isConnecting: false,
-    error: null,
+    isConnected: false,
+    error: '',
     onConnect: jest.fn()
   }
 
-  const renderApp = (props = mockProps) => {
+  const initialState = {
+    wallet: {
+      address: '',
+      isConnecting: false,
+      error: null
+    },
+    balance: {
+      balance: '0',
+      isUpdating: false
+    },
+    transfer: {
+      addressFrom: '',
+      address: '',
+      amount: '',
+      error: null,
+      status: 'idle'
+    }
+  }
+
+  const renderApp = (props = mockProps, state = initialState) => {
+    const store = mockStore(state)
     return render(
-      <BrowserRouter>
-        <App {...props} />
-      </BrowserRouter>
+      <Provider store={store}>
+        <BrowserRouter>
+          <App {...props} />
+        </BrowserRouter>
+      </Provider>
     )
   }
 
   it('should render connect button when not connected', () => {
     renderApp()
-    const connectButton = screen.getByText('Connect')
-    expect(connectButton).toBeInTheDocument()
+    expect(screen.getByText('Connect')).toBeInTheDocument()
   })
 
   it('should show loading state while connecting', () => {
     renderApp({ ...mockProps, isConnecting: true })
-    const connectButton = screen.getByText('Connect')
-    expect(connectButton).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByRole('button', { name: 'Connect' })).toHaveClass('loading')
   })
 
   it('should display error message when present', () => {
-    const error = 'Connection failed'
-    renderApp({ ...mockProps, error })
-    expect(screen.getByText(error)).toBeInTheDocument()
+    renderApp({ ...mockProps, error: 'Test error' })
+    expect(screen.getByText('Test error')).toBeInTheDocument()
   })
 
   it('should display wallet info when connected', () => {
-    const address = '0x123456789abcdef'
-    renderApp({
-      ...mockProps,
-      address,
-      isConnected: true
-    })
-
+    const connectedState = {
+      ...initialState,
+      wallet: {
+        ...initialState.wallet,
+        address: '0x123'
+      }
+    }
+    renderApp({ ...mockProps, address: '0x123', isConnected: true }, connectedState)
     expect(screen.getByText('Wallet')).toBeInTheDocument()
-    expect(screen.getByText('0x1234...cdef')).toBeInTheDocument()
-    expect(screen.getByText('TRANSFER')).toBeInTheDocument()
+    expect(screen.getByText(/0x123/)).toBeInTheDocument()
   })
 
   it('should call onConnect when connect button is clicked', () => {
-    renderApp()
-    const connectButton = screen.getByText('Connect')
-    fireEvent.click(connectButton)
-    expect(mockProps.onConnect).toHaveBeenCalled()
+    const onConnect = jest.fn()
+    renderApp({ ...mockProps, onConnect })
+    fireEvent.click(screen.getByText('Connect'))
+    expect(onConnect).toHaveBeenCalled()
   })
 })

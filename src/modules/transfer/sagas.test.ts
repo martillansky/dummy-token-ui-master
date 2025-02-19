@@ -1,22 +1,20 @@
 import { ethers } from 'ethers'
 import { expectSaga } from 'redux-saga-test-plan'
 import * as matchers from 'redux-saga-test-plan/matchers'
-import { throwError } from 'redux-saga-test-plan/providers'
-import { TOKEN_ABI } from '../wallet/sagas'
 import { TRANSFER_TOKEN_REQUEST, transferTokenFailure, transferTokenSuccess } from './actions'
 import { transferSaga } from './sagas'
-import { WindowWithEthereum } from './types'
 
-/* // Mock TOKEN_ADDRESS and TOKEN_ABI directly instead of importing
-const TOKEN_ADDRESS = '0x123'
-const TOKEN_ABI = [
-  'function symbol() view returns (string)',
-  'function balanceOf(address) view returns (uint)',
-  'function transfer(address to, uint amount)'
-] */
+// Mock ethers
+jest.mock('ethers', () => ({
+  ethers: {
+    BrowserProvider: jest.fn(),
+    Contract: jest.fn(),
+    getAddress: jest.fn(addr => addr),
+    parseUnits: jest.fn(amount => amount)
+  }
+}))
 
 describe('transfer sagas', () => {
-  const windowWithEthereum = window as unknown as WindowWithEthereum
   const mockAddressFrom = '0x123'
   const mockAddress = '0x456'
   const mockAmount = '100'
@@ -24,16 +22,16 @@ describe('transfer sagas', () => {
 
   const mockProvider = {
     getSigner: jest.fn(),
-    provider: {},
-    destroy: jest.fn(),
-    getBlockNumber: jest.fn(),
-    getNetwork: jest.fn(),
     send: jest.fn()
-  } as unknown as ethers.BrowserProvider
+  }
 
   const mockSigner = {
-    getAddress: jest.fn(),
-    provider: mockProvider
+    getAddress: jest.fn()
+  }
+
+  const mockTx = {
+    hash: mockTxHash,
+    wait: jest.fn()
   }
 
   const mockContract = {
@@ -42,19 +40,21 @@ describe('transfer sagas', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    // Setup ethers mocks for each test
+    ;(ethers.BrowserProvider as jest.Mock).mockImplementation(() => mockProvider)
+    ;(ethers.Contract as jest.Mock).mockImplementation(() => mockContract)
+    mockProvider.getSigner.mockResolvedValue(mockSigner)
+    mockProvider.send.mockResolvedValue([])
+    mockTx.wait.mockResolvedValue({})
   })
 
   it('should handle successful token transfer', () => {
-    const mockTx = { hash: mockTxHash }
     mockContract.transfer.mockResolvedValue(mockTx)
 
     return expectSaga(transferSaga)
       .provide([
-        [matchers.call.fn(() => new ethers.BrowserProvider(windowWithEthereum.ethereum)), mockProvider],
-        [matchers.call.fn(() => mockProvider.getSigner()), mockSigner],
-        //[matchers.call.fn(() => new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, mockSigner)), mockContract],
-        [matchers.call.fn(() => new ethers.Contract('0x123', TOKEN_ABI, mockSigner)), mockContract],
-        [matchers.call([mockContract, 'transfer']), mockTx]
+        [matchers.call([mockContract, 'transfer'], mockAddress, mockAmount), mockTx],
+        [matchers.call([mockTx, mockTx.wait]), {}]
       ])
       .put(transferTokenSuccess(mockTxHash))
       .dispatch({
@@ -66,9 +66,9 @@ describe('transfer sagas', () => {
 
   it('should handle token transfer failure', () => {
     const error = new Error('Transfer failed')
+    mockContract.transfer.mockRejectedValue(error)
 
     return expectSaga(transferSaga)
-      .provide([matchers.call.fn(() => new ethers.BrowserProvider(windowWithEthereum.ethereum)), throwError(error)])
       .put(transferTokenFailure('Transfer failed'))
       .dispatch({
         type: TRANSFER_TOKEN_REQUEST,
