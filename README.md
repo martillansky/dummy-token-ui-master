@@ -1,4 +1,15 @@
-# Dummy Token UI
+# Instructions for testing the Dummy Token UI.
+
+The DUMMY token was deployed on the Sepolia testnet. Please find the token address in .env file.
+
+The token appears to deviate from ERC20 standards in two ways: it lacks proper implementation of the decimals function and fails to specify boolean returns for transfer operations.
+
+The MetaMask interface may temporarily display a transfer amount of 0 during the approval process, though the transaction will ultimately execute successfully upon confirmation. This display inconsistency appears to be connected to the previously identified deviations from ERC20 standards in the token contract, though this is speculative and other factors could be involved.
+
+To run the project, please run `npm start`.
+To run the tests, please run `npm test`.
+
+# Dummy Token UI (Original README)
 
 A simple UI for a [Dummy Token](https://github.com/decentraland/dummy-token). This frontend allows the user to connect their wallet and see their address. It is built using `react` + `redux` + `redux-saga`.
 
