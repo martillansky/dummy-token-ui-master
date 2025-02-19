@@ -109,10 +109,10 @@ describe('Component Integration', () => {
 
     // Perform transfer
     const amountInput = screen.getByPlaceholderText('Amount')
-    const addressInput = screen.getByPlaceholderText('Recipient address')
+    const addressInput = screen.getByPlaceholderText('Address')
     fireEvent.change(amountInput, { target: { value: '100' } })
     fireEvent.change(addressInput, { target: { value: '0x456' } })
-    fireEvent.click(screen.getByText('Submit'))
+    fireEvent.click(screen.getByText('Send'))
 
     // Verify balance update action was dispatched
     const actions = store.getActions()
@@ -148,8 +148,8 @@ describe('Component Integration', () => {
     )
 
     const amountInput = screen.getByPlaceholderText('Amount')
-    const addressInput = screen.getByPlaceholderText('Recipient address')
-    const submitButton = screen.getByText('Submit')
+    const addressInput = screen.getByPlaceholderText('Address')
+    const submitButton = screen.getByText('Send')
 
     // Submit without inputs
     fireEvent.click(submitButton)

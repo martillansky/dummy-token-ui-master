@@ -35,14 +35,14 @@ describe('Transfer component', () => {
     renderTransfer()
     expect(screen.getByText('Transfer')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Amount')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Recipient address')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Address')).toBeInTheDocument()
   })
 
   it('should call onTransferConfirmed with correct values', () => {
     renderTransfer()
     const amountInput = screen.getByPlaceholderText('Amount')
-    const addressInput = screen.getByPlaceholderText('Recipient address')
-    const submitButton = screen.getByText('Submit')
+    const addressInput = screen.getByPlaceholderText('Address')
+    const submitButton = screen.getByText('Send')
 
     fireEvent.change(amountInput, { target: { value: '100' } })
     fireEvent.change(addressInput, { target: { value: '0x456' } })
@@ -59,7 +59,7 @@ describe('Transfer component', () => {
 
   it('should show loading state while updating', () => {
     renderTransfer({ ...mockProps, isUpdating: true })
-    const submitButton = screen.getByText('Submit')
+    const submitButton = screen.getByText('Send')
     expect(submitButton).toHaveAttribute('aria-busy', 'true')
   })
 })

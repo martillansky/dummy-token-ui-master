@@ -31,3 +31,10 @@
 .Transfer .ui.loading.button {
   position: relative;
 }
+
+/* Note on Metamask issue when approving tx, showing 0 as the amount to be transferred */
+.transfer-note {
+  color: gray;
+  display: block;
+  margin-bottom: 1rem;
+}
