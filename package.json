@@ -12,13 +12,9 @@
     "test:watch": "jest --watch"
   },
   "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.ts"
-    ],
     "moduleNameMapper": {
-      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+      "^src/(.*)$": "<rootDir>/src/$1"
     },
     "transform": {
       "^.+\\.(ts|tsx)$": [
@@ -31,7 +27,11 @@
           }
         }
       ]
-    }
+    },
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.ts"
+    ]
   },
   "dependencies": {
     "decentraland-ui": "^6.12.1",

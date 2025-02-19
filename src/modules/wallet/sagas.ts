@@ -1,16 +1,16 @@
 import { ethers } from 'ethers'
 import { eventChannel, EventChannel } from 'redux-saga'
 import { call, fork, put, take, takeEvery } from 'redux-saga/effects'
+import { TOKEN_ADDRESS } from '../../config'
 import { balanceRequest } from '../balance/actions'
 import { isErrorWithMessage } from '../utils'
 import { CONNECT_WALLET_REQUEST, connectWalletFailure, connectWalletSuccess } from './actions'
 import { WindowWithEthereum } from './types'
-
 // The regular `window` object with `ethereum` injected by MetaMask
 const windowWithEthereum = window as unknown as WindowWithEthereum
 
 /* This is the Dummy Token address, it identifies the token contract once deployed */
-export const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS
+//export const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS
 if (!TOKEN_ADDRESS) {
   console.error(`Missing env variable VITE_TOKEN_ADDRESS`)
 }

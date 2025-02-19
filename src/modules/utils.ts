@@ -1,10 +1,9 @@
 import { ethers } from 'ethers'
+import { TOKEN_DECIMALS } from '../config'
 
 export function isErrorWithMessage(error: unknown): error is Error {
   return error !== undefined && error !== null && typeof error === 'object' && 'message' in error
 }
-
-export const TOKEN_DECIMALS = Number(import.meta.env.VITE_TOKEN_DECIMALS)
 
 export const formatBalance = (balanceWei: string | null) => {
   if (!balanceWei) return '0'

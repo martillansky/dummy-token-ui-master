@@ -1,7 +1,8 @@
 import { TransactionResponse, ethers } from 'ethers'
 import { call, put, takeEvery } from 'redux-saga/effects'
+import { TOKEN_ADDRESS } from '../../config'
 import { isErrorWithMessage } from '../utils'
-import { TOKEN_ABI, TOKEN_ADDRESS } from '../wallet/sagas'
+import { TOKEN_ABI } from '../wallet/sagas'
 import { BALANCE_REQUEST, BalanceRequestAction, balanceRequestFailure, balanceRequestSuccess, balanceRequestUpdate } from './actions'
 import { WindowWithEthereum } from './types'
 
