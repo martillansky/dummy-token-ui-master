@@ -1,8 +1,7 @@
 import { Button, Close, Field, Footer, Header, Modal, ModalDescription, Navbar, Page } from 'decentraland-ui'
-import { ethers } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { formatBalance, TOKEN_DECIMALS } from '../../modules/utils'
+import { formatBalance } from '../../modules/utils'
 import './Transfer.css'
 import { Props } from './Transfer.types'
 
@@ -17,9 +16,9 @@ const Transfer: React.FC<Props> = ({ error, address, balance, isConnected, isUpd
   const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newAmount = e.target.value
     try {
-      const amountInWei = ethers.parseUnits(newAmount || '0', TOKEN_DECIMALS)
-      const balanceInWei = ethers.parseUnits(formatBalance(balance), TOKEN_DECIMALS)
-      setIsInsufficient(amountInWei > balanceInWei)
+      const amountFloat = parseFloat(newAmount || '0')
+      const balanceFloat = parseFloat(formatBalance(balance))
+      setIsInsufficient(amountFloat > balanceFloat)
       setAmount(newAmount)
     } catch (error: any) {
       const typedError = error as Error
@@ -65,6 +64,9 @@ const Transfer: React.FC<Props> = ({ error, address, balance, isConnected, isUpd
               type="number"
               onKeyDown={(e: any) => ['e', 'E', '-', '+', ','].includes(e.key) && e.preventDefault()}
             />
+            <small className="transfer-note">
+              Note: MetaMask might show 0 in the approval screen. The correct amount will be transferred.
+            </small>
             &nbsp;
             <Field label="Address" type="address" value={addressTo} onChange={e => setAddressTo(e.target.value)} placeholder="0x" />
           </Modal.Content>
