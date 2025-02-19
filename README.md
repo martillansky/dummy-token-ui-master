@@ -1,6 +1,6 @@
 # Instructions for testing the Dummy Token UI.
 
-The DUMMY token was deployed on the Sepolia testnet. Please find the token address in .env file.
+The DUMMY token was deployed on the Sepolia testnet. Please find the token address in .env file, or check the [Sepolia block explorer](https://sepolia.etherscan.io/address/0x8F0Bfef6ECA6C93aCfF5733966BD0187c7D916cC)
 
 The token appears to deviate from ERC20 standards in two ways: it lacks proper implementation of the decimals function and fails to specify boolean returns for transfer operations.
 
