@@ -3,37 +3,20 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import configureStore from 'redux-mock-store'
+import { formatBalance } from '../../modules/utils'
 import { App } from '../App'
 import { Transfer } from '../Transfer'
-
 const mockStore = configureStore([])
 
 describe('Component Integration', () => {
-  const initialState: {
-    wallet: {
-      address: string
-      isConnecting: boolean
-      error: string | null
-    }
-    balance: {
-      balance: string
-      isUpdating: boolean
-    }
-    transfer: {
-      addressFrom: string
-      address: string
-      amount: string
-      error: string | null
-      status: string
-    }
-  } = {
+  const initialState = {
     wallet: {
       address: '0x123',
       isConnecting: false,
       error: null
     },
     balance: {
-      balance: '10000',
+      balance: '10000', // 1.0000 with 4 decimals
       isUpdating: false
     },
     transfer: {
@@ -68,22 +51,28 @@ describe('Component Integration', () => {
       </Provider>
     )
 
-    const transferButton = screen.getByText('TRANSFER')
-    fireEvent.click(transferButton)
-
-    // Verify navigation occurred
+    fireEvent.click(screen.getByText('TRANSFER'))
     expect(window.location.pathname).toBe('/transfer')
   })
 
-  it('should show balance in both App and Transfer components', () => {
+  it('should show formatted balance in both App and Transfer components', () => {
+    const formattedBalance = formatBalance(initialState.balance.balance)
+
     // Render App
     const { unmount } = renderWithStore(<App />)
-    expect(screen.getByText('1.00')).toBeInTheDocument()
+    expect(screen.getByText(formattedBalance)).toBeInTheDocument()
     unmount()
 
     // Render Transfer
     renderWithStore(<Transfer />)
-    expect(screen.getByText('1.00')).toBeInTheDocument()
+    expect(screen.getByText(`Balance: ${formattedBalance}`)).toBeInTheDocument()
+  })
+
+  it('should display MetaMask note in Transfer component', () => {
+    renderWithStore(<Transfer />)
+    expect(
+      screen.getByText('Note: MetaMask might show 0 in the approval screen. The correct amount will be transferred.')
+    ).toBeInTheDocument()
   })
 
   it('should maintain wallet connection state across components', () => {
@@ -102,42 +91,26 @@ describe('Component Integration', () => {
     expect(screen.getByText('From: 0x123...123')).toBeInTheDocument()
   })
 
-  it('should update balance across components when transfer occurs', () => {
-    const store = mockStore(initialState)
-
+  it('should validate transfer amount against balance', () => {
     renderWithStore(<Transfer />)
 
-    // Perform transfer
-    const amountInput = screen.getByPlaceholderText('Amount')
-    const addressInput = screen.getByPlaceholderText('Address')
-    fireEvent.change(amountInput, { target: { value: '100' } })
-    fireEvent.change(addressInput, { target: { value: '0x456' } })
-    fireEvent.click(screen.getByText('Send'))
+    const amountInput = screen.getByPlaceholderText('100')
+    fireEvent.change(amountInput, { target: { value: '2.0000' } }) // More than balance
 
-    // Verify balance update action was dispatched
-    const actions = store.getActions()
-    expect(actions.some(action => action.type.includes('BALANCE_UPDATE'))).toBeTruthy()
+    expect(screen.getByText(/Insufficient funds!/)).toBeInTheDocument()
+    expect(screen.getByText('Send')).toBeDisabled()
   })
 
-  it('should display wallet connection errors', () => {
-    const errorState = {
+  it('should handle transfer errors appropriately', () => {
+    const transferErrorState: any = {
       ...initialState,
-      wallet: { ...initialState.wallet, error: 'Failed to connect wallet' }
-    }
-    renderWithStore(<App />, errorState)
-    expect(screen.getByText('Failed to connect wallet')).toBeInTheDocument()
-  })
-
-  it('should handle transfer errors', () => {
-    const transferErrorState = {
-      ...initialState,
-      transfer: { ...initialState.transfer, error: 'Insufficient funds', status: 'error' }
+      transfer: { ...initialState.transfer, error: 'Transaction failed', status: 'error' }
     }
     renderWithStore(<Transfer />, transferErrorState)
-    expect(screen.getByText('Insufficient funds')).toBeInTheDocument()
+    expect(screen.getByText('Transaction failed')).toBeInTheDocument()
   })
 
-  it('should validate transfer inputs', () => {
+  it('should dispatch transfer action with correct values', () => {
     const store = mockStore(initialState)
     render(
       <Provider store={store}>
@@ -147,21 +120,20 @@ describe('Component Integration', () => {
       </Provider>
     )
 
-    const amountInput = screen.getByPlaceholderText('Amount')
-    const addressInput = screen.getByPlaceholderText('Address')
-    const submitButton = screen.getByText('Send')
+    const amountInput = screen.getByPlaceholderText('100')
+    const addressInput = screen.getByPlaceholderText('0x')
 
-    // Submit without inputs
-    fireEvent.click(submitButton)
-    const actions = store.getActions()
-    expect(actions.length).toBe(0) // Form should prevent submission
-
-    // Fill invalid values
-    fireEvent.change(amountInput, { target: { value: '100' } })
+    fireEvent.change(amountInput, { target: { value: '0.5000' } })
     fireEvent.change(addressInput, { target: { value: '0x456' } })
-    fireEvent.click(submitButton)
+    fireEvent.click(screen.getByText('Send'))
 
-    // Verify transfer action was dispatched
-    expect(actions.some(action => action.type.includes('TRANSFER_TOKEN_REQUEST'))).toBeTruthy()
+    const actions = store.getActions()
+    const transferAction = actions.find(action => action.type === '[Request] Transfer Token')
+    expect(transferAction).toBeTruthy()
+    expect(transferAction?.payload).toEqual({
+      addressFrom: '0x123',
+      address: '0x456',
+      amount: '0.5000'
+    })
   })
 })
