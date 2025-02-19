@@ -1,11 +1,17 @@
 import { ethers } from 'ethers'
 import { expectSaga } from 'redux-saga-test-plan'
 import * as matchers from 'redux-saga-test-plan/matchers'
-import { throwError } from 'redux-saga-test-plan/providers'
 import { balanceRequest } from '../balance/actions'
 import { CONNECT_WALLET_REQUEST, connectWalletFailure, connectWalletSuccess } from './actions'
 import { handleConnectWalletRequest, walletSaga } from './sagas'
-import { WindowWithEthereum } from './types'
+
+// Mock ethers
+jest.mock('ethers', () => ({
+  ethers: {
+    BrowserProvider: jest.fn(),
+    Contract: jest.fn()
+  }
+}))
 
 // Mock window.ethereum
 const mockEthereum = {
@@ -21,43 +27,39 @@ global.window = {
 } as any
 
 describe('wallet sagas', () => {
-  const windowWithEthereum = window as unknown as WindowWithEthereum
   const mockAddress = '0x123'
+
   const mockProvider = {
     send: jest.fn(),
     getSigner: jest.fn()
   }
+
   const mockSigner = {
     getAddress: jest.fn()
   }
 
   beforeEach(() => {
     jest.clearAllMocks()
+    // Setup ethers mocks for each test
+    ;(ethers.BrowserProvider as jest.Mock).mockImplementation(() => mockProvider)
+    mockProvider.getSigner.mockResolvedValue(mockSigner)
+    mockProvider.send.mockResolvedValue([])
+    mockSigner.getAddress.mockResolvedValue(mockAddress)
   })
 
   it('should handle successful wallet connection', () => {
-    mockSigner.getAddress.mockResolvedValue(mockAddress)
-    mockProvider.getSigner.mockResolvedValue(mockSigner)
-
     return expectSaga(handleConnectWalletRequest)
-      .provide([
-        [matchers.call.fn(() => new ethers.BrowserProvider(windowWithEthereum.ethereum)), mockProvider],
-        [matchers.call([mockProvider, 'send']), undefined],
-        [matchers.call([mockProvider, 'getSigner']), mockSigner],
-        [matchers.call([mockSigner, 'getAddress']), mockAddress]
-      ])
-      .put(connectWalletSuccess(mockAddress))
+      .provide([[matchers.call([mockSigner, 'getAddress']), mockAddress]])
       .put(balanceRequest(mockAddress))
+      .put(connectWalletSuccess(mockAddress))
       .run()
   })
 
   it('should handle wallet connection failure', () => {
     const error = new Error('Connection failed')
+    mockProvider.send.mockRejectedValue(error)
 
-    return expectSaga(handleConnectWalletRequest)
-      .provide([[matchers.call.fn(() => new ethers.BrowserProvider(windowWithEthereum.ethereum)), throwError(error)]])
-      .put(connectWalletFailure('Connection failed'))
-      .run()
+    return expectSaga(handleConnectWalletRequest).put(connectWalletFailure('Connection failed')).run()
   })
 
   it('should watch for wallet changes', () => {
